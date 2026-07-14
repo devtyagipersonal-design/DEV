@@ -1,0 +1,2581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Chicken Road Game</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #161824;
+    }
+    .header {
+      width: 100vw;
+      height: 64px;
+      background: #3A3D51;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 0 16px;
+      box-sizing: border-box;
+    }
+    .header-left {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .balance {
+      background: #4E5163;
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      min-width: 40px;
+      text-align: center;
+      width: auto;
+      display: inline-block;
+      transition: min-width 0.2s, width 0.2s;
+    }
+    .hamburger {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+    .hamburger span {
+      display: block;
+      height: 3px;
+      width: 100%;
+      background: #fff;
+      border-radius: 2px;
+      transition: 0.3s;
+    }
+    @media (max-width: 480px) {
+      .header {
+        height: 56px;
+        padding: 0 10px;
+      }
+      .header-left {
+        font-size: 1.1rem;
+      }
+      .balance {
+        font-size: 0.95rem;
+        padding: 5px 10px;
+      }
+    }
+    .popup-menu {
+      position: absolute;
+      top: 72px;
+      right: 16px;
+      width: 82vw;
+      max-width: 270px;
+      background: #3A3D51;
+      border-radius: 18px;
+      padding: 22px 18px 0 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      z-index: 1000;
+      display: none;
+      border: 2.5px solid #404B4F;
+    }
+    .popup-menu.active {
+      display: block;
+    }
+    .profile-section {
+      margin-bottom: 18px;
+    }
+    .profile-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .avatar-img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #22c55e;
+    }
+    .player-name {
+      color: #fff;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .change-avatar-btn {
+      background: none;
+      border: none;
+      color: #60a5fa;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+    }
+    .avatar-selection {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+    .avatar-selection.hidden {
+      display: none;
+    }
+    .avatar-option {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: border 0.2s;
+    }
+    .avatar-option:hover {
+      border: 2px solid #22c55e;
+    }
+    .toggle-section {
+      margin-bottom: 16px;
+    }
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 14px; /* Match menu-list a gap */
+      color: #fff;
+      font-size: 1rem;
+    }
+    .toggle-icon {
+      width: 20px;
+      height: 20px;
+      margin-left: 2px;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #555;
+      border-radius: 24px;
+      transition: background 0.3s;
+    }
+    .switch input:checked + .slider {
+      background-color: #22c55e;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+    .switch input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid #2d3748;
+      margin: 10px 0;
+    }
+    .menu-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      color: #fff;
+    }
+    .menu-list li {
+      margin-bottom: 10px;
+    }
+    .menu-list li:last-child {
+      margin-bottom: 0;
+    }
+    .menu-list a {
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 1rem;
+      transition: color 0.2s;
+      padding-left: 4px;
+    }
+    .menu-list a:hover {
+      text-decoration: underline;
+      color: #60a5fa;
+    }
+    .menu-icon {
+      width: 20px;
+      height: 20px;
+      margin-left: 2px;
+    }
+    .logout {
+      color: #f87171 !important;
+    }
+    @media (max-width: 480px) {
+      .popup-menu {
+        right: 8px;
+        padding: 16px 6px;
+      }
+      .menu-list a {
+        font-size: 0.97rem;
+      }
+    }
+    .scroll-row {
+      width: 100vw;
+      overflow-x: auto;
+      overflow-y: hidden;
+      margin: 0;
+      padding: 0;
+      background: none;
+      -webkit-overflow-scrolling: touch;
+      height: 300px; /* Increased height */
+    }
+    .scroll-inner {
+      display: flex;
+      flex-direction: row;
+      width: max-content;
+      margin: 0;
+      padding: 0;
+    }
+    .scroll-rect {
+      flex: 0 0 160px;
+      width: 160px;
+      height: 280px; /* Increased height */
+      background: #4E5163;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 600;
+      margin: 0;
+      user-select: none;
+      transition: background 0.2s;
+      border-radius: 0;
+      overflow: hidden;
+      border: none;
+      position: relative;
+    }
+    .rect-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      margin: 0;
+      display: block;
+      z-index: 1;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .center-img {
+      max-width: 80%;
+      max-height: 80%;
+      z-index: 2;
+      pointer-events: none;
+      position: relative;
+      margin: auto;
+      display: block;
+      opacity: 1;
+      visibility: visible;
+    }
+    .special-rect {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+    @media (max-width: 480px) {
+      .scroll-row {
+        height: 490px; /* Increased height */
+      }
+      .scroll-rect {
+        width: 210px;
+        height: 490px; /* Increased height */
+        flex: 0 0 210px;
+      }
+    }
+    .play-card {
+      width: 100%;
+      max-width: 360px;
+      margin-left: auto;
+      margin-right: auto;
+      background: #3A3D51;
+      border-radius: 10px;
+      border: 2px solid #404B4F;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 16px 0 14px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      z-index: 2;
+    }
+    .play-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .play-row-top,
+    .difficulty-select-wrapper {
+      position: relative;
+      width: 95%;
+      max-width: 360px;
+      margin-left: auto;
+      margin-right: auto;
+      box-sizing: border-box;
+      border-radius: 8px;
+    }
+    .play-row-top {
+      background: #4E5062;
+      border-radius: 4px;
+      min-height: 38px;
+      padding: 0 4px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+      min-width: 0;
+      width: 95%;
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .play-label {
+      color: #d1d5db;
+      font-size: 0.95em;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .play-value {
+      color: #fff;
+      font-size: 1.1em;
+      font-weight: 700;
+    }
+    .play-row-amounts {
+      gap: 24px;
+      margin-bottom: 12px;
+      width: 95%;
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      padding: 0;
+    }
+    .amount-btn {
+      background: #4E5062;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      height: 38px;
+      padding: 0;
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      transition: background 0.2s;
+      width: calc(25% - 18px);
+      justify-content: center;
+    }
+    .amount-btn:active, .amount-btn:focus {
+      background: #23263a;
+      outline: none;
+    }
+    .currency {
+      font-size: 0.95em;
+      margin-left: 2px;
+    }
+    .play-row-select {
+    }
+    .difficulty-select {
+      width: 95%;
+      height: 38px;
+      padding: 0 10px;
+      border-radius: 8px;
+      border: none;
+      background: #4E5062;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 500;
+      appearance: none;
+      display: block;
+      margin: 0;
+    }
+    .play-btn {
+      width: 95%;
+      margin-left: auto;
+      margin-right: auto;
+      background: #3DC55B;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      height: 54px;
+      padding: 0;
+      font-size: 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 8px rgba(44,204,64,0.08);
+    }
+    .play-btn:active, .play-btn:focus {
+      background: #27ae60;
+      outline: none;
+    }
+    @media (max-width: 480px) {
+      .play-card {
+        width: 99%;
+        padding: 10px 4px 10px 4px;
+      }
+      .play-btn {
+        font-size: 1.1rem;
+        padding: 10px 0;
+      }
+      .amount-btn {
+        font-size: 0.95rem;
+        padding: 7px 10px;
+      }
+      .play-row-top {
+        font-size: 0.9rem;
+        padding: 5px 6px;
+      }
+    }
+    .play-card-standalone {
+      margin: 32px auto 0 auto;
+      max-width: 360px;
+      position: static;
+      min-height: 230px;
+    }
+    .minmax-btn {
+      background: #686A79;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 10px;
+      font-size: 0.95em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+      min-width: 36px;
+      margin: 0 2px;
+    }
+    .minmax-btn:active, .minmax-btn:focus {
+      background: #4E5062;
+      outline: none;
+    }
+    .difficulty-select-display {
+      width: 95%;
+      height: 38px;
+      background: #4E5062;
+      color: #fff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      position: relative;
+      z-index: 2;
+    }
+    .difficulty-popup {
+      display: none;
+      position: absolute;
+      left: 0;
+      bottom: 100%;
+      width: 100%;
+      background: #4E5062;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      z-index: 10;
+      padding: 0;
+      margin-bottom: 4px;
+    }
+    .difficulty-popup.active {
+      display: block;
+    }
+    .difficulty-option {
+      padding: 10px 12px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+      border-bottom: 1px solid #404B4F;
+      transition: background 0.2s;
+    }
+    .difficulty-option:last-child {
+      border-bottom: none;
+    }
+    .difficulty-option:hover, .difficulty-option.selected {
+      background: #404B4F;
+    }
+    .chicken-overlay {
+      position: absolute;
+      left: 50%;
+      bottom: 5px;
+      transform: translateX(-50%);
+      width: 40%;
+      max-width: 80px;
+      height: auto;
+      z-index: 3;
+      pointer-events: none;
+    }
+    .minmax-input {
+      background: #4E5062;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-align: center;
+      width: 80px;
+      margin: 0 8px;
+      outline: none;
+      box-shadow: none;
+      transition: border 0.2s;
+    }
+    .minmax-input:focus {
+      outline: none;
+      border: none;
+      background: #4E5062;
+    }
+    .rect-text-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 1.3rem;
+      font-weight: bold;
+      text-shadow: 2px 2px 0 #707CBB;
+      pointer-events: none;
+      z-index: 10;
+      text-align: center;
+      width: 100%;
+    }
+    .go-btn, .cashout-btn {
+      width: 48%;
+      margin-left: 1%;
+      margin-right: 1%;
+      background: #3DC55B;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      height: 54px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(44,204,64,0.08);
+      display: inline-block;
+    }
+    .go-btn {
+      background: #3DC55B;
+    }
+    .go-btn:active, .go-btn:focus {
+      background: #27ae60;
+      outline: none;
+    }
+    .cashout-btn {
+      background: #F7B731;
+      color: #23263a;
+    }
+    .cashout-btn:active, .cashout-btn:focus {
+      background: #e1a100;
+      outline: none;
+    }
+    .play-row-gocash {
+      width: 95%;
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      gap: 4%;
+      justify-content: space-between;
+    }
+    .turn-effect {
+      animation: turn-green 0.5s cubic-bezier(0.4,1.4,0.6,1) 1;
+    }
+    @keyframes turn-green {
+      0% { transform: rotateY(0deg) scale(1); }
+      40% { transform: rotateY(-90deg) scale(1.1); }
+      60% { transform: rotateY(-90deg) scale(1.1); }
+      100% { transform: rotateY(-180deg) scale(1); }
+    }
+
+    /* Cashout Modal Styles */
+    #cashoutModal {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      background: rgba(0,0,0,0.7) !important;
+      z-index: 9999 !important;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #cashoutModal .modal-content {
+      background: linear-gradient(135deg, #3A3D51 0%, #2A2D41 100%);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      border: 2px solid #4A4D61;
+      text-align: center;
+      max-width: 280px;
+      width: 85%;
+      margin: 0 auto;
+      position: relative;
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    #cashoutModal .celebration-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+      animation: bounce 0.6s ease-in-out;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-10px);
+      }
+      60% {
+        transform: translateY(-5px);
+      }
+    }
+
+    #cashoutModal .title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    #cashoutModal .multiplier {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #10B981;
+      margin: 8px 0;
+      text-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+    }
+
+    #cashoutModal .winnings {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #10B981;
+      margin: 8px 0 16px 0;
+      text-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+    }
+
+    #cashoutModal .ok-button {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+      color: white;
+      padding: 10px 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    #cashoutModal .ok-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+    }
+
+    #cashoutModal .ok-button:active {
+      transform: translateY(0);
+    }
+
+    #mainContent.blurred {
+      filter: blur(6px);
+      pointer-events: none;
+      user-select: none;
+      transition: filter 0.3s;
+    }
+
+    .modal-close-btn:hover {
+      color: #f87171;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .modal-box {
+      background: #19212A;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      text-align: center;
+      width: 270px;
+      max-width: 90%;
+      border: 2.5px solid #404B4F;
+      position: relative;
+      color: white;
+    }
+    @media (max-width: 480px) {
+      .modal-box {
+        width: 90vw;
+        padding: 18px;
+      }
+    }
+    .powered-by-section {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      padding-left: 4px;
+    }
+    .powered-by-logo {
+      max-width: 110px;
+      max-height: 32px;
+      margin-top: 2px;
+    }
+    .powered-by-text {
+      color: #a1a1aa;
+      font-size: 1.13rem;
+      font-weight: 600;
+    }
+    /* Modern cross button for modal close */
+    .modal-close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(64,75,79,0.12);
+      border: none;
+      font-size: 2.1rem;
+      color: #a1a1aa;
+      cursor: pointer;
+      z-index: 2;
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .modal-close-btn:hover {
+      color: #f87171;
+      background: rgba(64,75,79,0.22);
+      box-shadow: 0 4px 16px rgba(64,75,79,0.18);
+    }
+    .home-live-status {
+      position: fixed;
+      top: 66px;
+      left: 14px;
+      font-size: 0.93rem;
+      color: #A7B1E6;
+      z-index: 10001;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 500;
+      pointer-events: none;
+      text-shadow: 0 1px 4px #000a;
+      white-space: nowrap;
+      max-width: none;
+      overflow-x: visible;
+      opacity: 1;
+    }
+    .blinking-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #22c55e;
+      margin: 0 6px 0 2px;
+      animation: blinkDot 1s infinite;
+      display: inline-block;
+      box-shadow: 0 0 6px #22c55e99;
+    }
+    @keyframes blinkDot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+    .scroll-rect.home-rect {
+      overflow: visible;
+      z-index: 21;
+      position: relative;
+    }
+    .side-win-notification {
+      position: fixed;
+      left: 0;
+      top: 90px;
+      width: 195px;
+      height: 48px;
+      background: linear-gradient(to right, #4A5282 80%, rgba(74,82,130,0) 100%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      z-index: 10001;
+      opacity: 0;
+      pointer-events: none;
+      transition: top 0.6s cubic-bezier(.4,1.4,.6,1), opacity 0.5s;
+      border-radius: 0;
+    }
+    .side-win-notification.active {
+      top: 90px;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .side-win-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 0;
+      object-fit: cover;
+      margin-left: 8px;
+    }
+    .side-win-name {
+      color: #fff;
+      font-size: 0.98rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 4px #000a;
+      margin-left: 6px;
+    }
+    .side-win-amount {
+      color: #22c55e;
+      font-size: 1.05rem;
+      font-weight: bold;
+      text-shadow: 0 1px 4px #000a;
+      margin-left: 8px;
+    }
+    body.hide-overlays .home-live-status,
+    body.hide-overlays .side-win-notification {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="home-live-status" style="position:fixed;top:66px;left:14px;z-index:10001;">
+    Live Wins <span class="blinking-dot"></span> Online: <span id="onlineCount">18300</span>
+  </div>
+  <div id="sideWinNotification" class="side-win-notification">
+    <img id="sideWinAvatar" class="side-win-avatar" src="avatar/1.png" alt="Avatar">
+    <span id="sideWinName" class="side-win-name">Player</span>
+    <span id="sideWinAmount" class="side-win-amount">+₹1,000.00</span>
+  </div>
+  <div id="mainContent">
+    <div class="header">
+      <div class="header-left">
+        <img src="images/chicken.png" alt="Chicken Road Logo" style="width: 32px; height: 32px; margin-right: 4px; vertical-align: middle;">
+        CHICKEN ROAD
+      </div>
+      <div class="header-right">
+        <div class="balance" id="balance">₹100000</div>
+        <div class="hamburger" id="hamburgerMenu" tabindex="0" aria-label="Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+    <!-- Popup Menu -->
+    <div id="popupMenu" class="popup-menu hidden">
+      <!-- Profile Section -->
+      <div class="profile-section">
+        <div class="profile-header">
+          <div class="profile-info">
+            <img id="selectedAvatar" src="avatar/7.png" class="avatar-img">
+            <div class="player-name">Player Name</div>
+            <button id="toggleAvatars" class="change-avatar-btn">Change Avatar</button>
+          </div>
+        </div>
+        <div id="avatarSelection" class="avatar-selection hidden">
+          <img src="avatar/1.png" class="avatar-option">
+          <img src="avatar/2.png" class="avatar-option">
+          <img src="avatar/3.png" class="avatar-option">
+          <img src="avatar/4.png" class="avatar-option">
+          <img src="avatar/5.png" class="avatar-option">
+          <img src="avatar/6.png" class="avatar-option">
+          <img src="avatar/8.png" class="avatar-option">
+          <img src="avatar/9.png" class="avatar-option">
+        </div>
+      </div>
+      <!-- Music & Sound Toggles -->
+      <div class="toggle-section">
+        <div class="toggle-row">
+          <span class="toggle-label"><img src="icons/music.svg" class="toggle-icon" alt="Music">Music</span>
+          <label class="switch">
+            <input type="checkbox" id="musicToggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label"><img src="icons/sound.svg" class="toggle-icon" alt="Sound">Sound</span>
+          <label class="switch">
+            <input type="checkbox" id="soundToggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <hr class="divider">
+      </div>
+      <!-- Menu Options -->
+      <ul class="menu-list">
+        <li><a href="deposit.html"><img src="icons/add.svg" class="menu-icon" alt="Deposit">Deposit</a></li>
+        <li><a href="withdraw.html"><img src="icons/withdraw.svg" class="menu-icon" alt="Withdraw">Withdraw</a></li>
+        <li><a href="transactions.html"><img src="icons/tran.svg" class="menu-icon" alt="Transaction History">Transaction</a></li>
+        <li><a href="bet-history.html"><img src="icons/bet.svg" class="menu-icon" alt="Bet History">Bet History</a></li>
+        <li><a href="refer.html"><img src="icons/refer.svg" class="menu-icon" alt="Refer & Earn">Refer</a></li>
+        <li><a href="kyc.html"><img src="icons/kyc.svg" class="menu-icon" alt="KYC">KYC</a></li>
+        <hr class="divider">
+        <li><a href="#" onclick="showGameRules(); return false;"><img src="icons/rule.svg" class="menu-icon" alt="Game Rules">Game Rules</a></li>
+        <li><a href="#" onclick="showHowToPlay(); return false;"><img src="icons/how.svg" class="menu-icon" alt="How to Play">How to Play</a></li>
+        <li><a href="#" onclick="redirectToSupport()"><img src="icons/support.svg" class="menu-icon" alt="Support">Support</a></li>
+        <hr class="divider">
+        <li><a href="#" id="logoutBtn" class="logout"><img src="icons/logout.svg" class="menu-icon" alt="Logout">Logout</a></li>
+      </ul>
+      <hr class="divider">
+      <div class="powered-by-section" id="poweredBySection">
+        <span class="powered-by-text">Powered by</span>
+        <img id="poweredByLogo" class="powered-by-logo" src="" alt="Powered by Logo" style="display:none;" />
+      </div>
+    </div>
+    <!-- Horizontal Scrollable Rectangles -->
+    <div class="scroll-row">
+      <div class="scroll-inner" id="scrollInner"></div>
+    </div>
+    <!-- New Rectangle Below Scrollable Row -->
+    <div class="play-card play-card-standalone">
+      <div class="play-row play-row-top">
+        <button class="minmax-btn">MIN</button>
+        <input class="minmax-input" type="number" step="0.01" min="0" value="0.6" />
+        <button class="minmax-btn">MAX</button>
+      </div>
+      <div class="play-row play-row-amounts">
+        <button class="amount-btn">0.5</button>
+        <button class="amount-btn">1</button>
+        <button class="amount-btn">2</button>
+        <button class="amount-btn">7</button>
+      </div>
+      <div class="play-row play-row-select">
+        <div class="difficulty-select-wrapper">
+          <div class="difficulty-select-display" tabindex="0">Easy <span style="margin-left:auto;">&#9660;</span></div>
+          <div class="difficulty-popup" id="difficultyPopup">
+            <div class="difficulty-option">Easy</div>
+            <div class="difficulty-option">Medium</div>
+            <div class="difficulty-option">Hard</div>
+            <div class="difficulty-option">Hardcore</div>
+          </div>
+        </div>
+      </div>
+      <button class="play-btn">Play</button>
+    </div>
+  </div> <!-- End #mainContent -->
+
+  <!-- Custom Modal Popup -->
+  <div id="customModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+    <div class="bg-[#3A3D51] rounded-lg p-6 shadow-xl w-96 max-w-full max-h-[80vh] overflow-y-auto">
+      <div class="mb-4">
+        <h3 id="modalTitle" class="text-xl font-bold text-white"></h3>
+      </div>
+      <div id="modalContent" class="text-gray-300 text-sm leading-relaxed"></div>
+    </div>
+  </div>
+
+  <!-- Game Rules Modal -->
+  <div id="rulesModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 9999; justify-content: center; align-items: center;">
+    <div class="modal-box" style="background: #3A3D51; border-radius: 18px; padding: 24px; max-width: 400px; width: 90%; position: relative;">
+      <button id="closeRulesBtn" class="modal-close-btn" aria-label="Close">&times;</button>
+      <div style="font-size: 24px; font-weight: bold; margin-bottom: 24px; color: white; text-align: center;">Game Rules</div>
+      <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
+        <div id="minBetBox" style="background: #4E5163; padding: 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 16px; color: #9CA3AF;">Minimum Bet</div>
+          <div id="minBetAmount" style="font-size: 20px; font-weight: bold; color: white;">₹10</div>
+        </div>
+        <div id="maxBetBox" style="background: #4E5163; padding: 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 16px; color: #9CA3AF;">Maximum Bet</div>
+          <div id="maxBetAmount" style="font-size: 20px; font-weight: bold; color: white;">₹10,000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How to Play Modal -->
+  <div id="howModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 9999; justify-content: center; align-items: center;">
+    <div class="modal-box">
+      <button id="closeHowBtn" class="modal-close-btn" aria-label="Close">&times;</button>
+      <div style="font-size: 24px; font-weight: bold; margin-bottom: 16px; text-align: center;">How to play?</div>
+      <div style="font-size: 16px; margin-bottom: 24px; line-height: 1.6;">
+        1. Specify the amount of your bet.<br/>
+        2. Choose a difficulty level in a game. The number of lines covers and the chance to be fried hard varies depending on the level of difficulty.<br/>
+        The game has 4 difficulty levels:<br/>
+        <span style="margin-left: 1em; display: block;">• Easy - there are 24 lines at this level.<br/>
+        • Medium - there are 22 lines at this level.<br/>
+        • Hard - there are 20 lines at this level.<br/>
+        • Hardcore - at the level of 15 lines.</span>
+        3. Press "Play" button.<br/>
+        4. Your goal is to get through as many lines covers as possible without getting fried. You can withdraw your winnings at any stage of the game.
+      </div>
+    </div>
+  </div>
+
+  <!-- Cashout Popup Modal -->
+  <div id="cashoutModal">
+    <div class="modal-content">
+      <div class="celebration-icon">🎉</div>
+      <div class="title">CASHOUT!</div>
+      <p style="color: #D1D5DB; font-size: 0.9rem; margin: 4px 0;">You cashed out at:</p>
+      <div class="multiplier" id="cashoutMultiplier">x2.50</div>
+      <p style="color: #D1D5DB; font-size: 0.9rem; margin: 4px 0;">Winnings:</p>
+      <div class="winnings" id="cashoutWinnings">₹150.00</div>
+      <button onclick="hideCashoutPopup()" class="ok-button">
+        OK
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Show custom modal function
+    function showCustomModal(title, content) {
+      const modal = document.getElementById('customModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalContent = document.getElementById('modalContent');
+      
+      modalTitle.textContent = title;
+      modalContent.innerHTML = content;
+      modal.classList.remove('hidden');
+    }
+
+    // Close custom modal function
+    function closeCustomModal() {
+      document.getElementById('customModal').classList.add('hidden');
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('click', function(e) {
+      const modal = document.getElementById('customModal');
+      if (e.target === modal) {
+        closeCustomModal();
+      }
+    });
+
+    // Close modal with escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeCustomModal();
+      }
+    });
+
+    // API Integration Functions
+    const API_BASE = window.location.origin;
+    
+    // Check if user is logged in on page load
+    async function checkAuthStatus() {
+      try {
+        const response = await fetch('auth_check.php');
+        const data = await response.json();
+        
+        if (data.success && data.user) {
+          updateUserInterface(data.user);
+          window.isCheckingAuth = false; // Clear the flag
+          return Promise.resolve();
+        } else {
+          // Redirect to login if not authenticated
+          window.isCheckingAuth = false; // Clear the flag
+          window.location.href = 'login.html';
+          return Promise.reject('Not authenticated');
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        window.isCheckingAuth = false; // Clear the flag
+        window.location.href = 'login.html';
+        return Promise.reject(error);
+      }
+    }
+
+    // Update UI with user data
+    function updateUserInterface(user) {
+      document.getElementById('balance').textContent = `₹${parseFloat(user.balance).toFixed(2)}`;
+      document.querySelector('.player-name').textContent = user.username;
+      
+      console.log('Updating avatar:', user.avatar); // Debug log
+      
+      if (user.avatar) {
+        // Avatar is stored as full path in database, use it directly
+        document.getElementById('selectedAvatar').src = user.avatar;
+      } else {
+        // Fallback to default avatar
+        document.getElementById('selectedAvatar').src = 'avatar/7.png';
+      }
+    }
+
+    // Save bet to backend
+    async function saveBet(betAmount, difficulty, multiplier, result, profit) {
+      try {
+        const response = await fetch('api/save_bet.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            bet_amount: betAmount,
+            difficulty: difficulty,
+            multiplier: multiplier,
+            result: result,
+            profit_loss: profit
+          })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          // Don't update user interface from saveBet - balance is handled separately
+          // updateUserInterface(data.user);
+        }
+        return data;
+      } catch (error) {
+        console.error('Save bet failed:', error);
+        return { success: false, error: 'Failed to save bet' };
+      }
+    }
+
+    // Update balance display immediately (for game logic)
+    function updateBalanceDisplay(newBalance) {
+      const balanceElement = document.getElementById('balance');
+      if (balanceElement) {
+        balanceElement.textContent = '₹' + newBalance.toFixed(2);
+      }
+    }
+
+    // Update user balance
+    async function updateBalance(newBalance) {
+      try {
+        const response = await fetch('api/update_balance.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            balance: newBalance
+          })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          updateUserInterface(data.user);
+        }
+        return data;
+      } catch (error) {
+        console.error('Update balance failed:', error);
+        return { success: false, error: 'Failed to update balance' };
+      }
+    }
+
+    // Logout function
+    async function logout() {
+      try {
+        await fetch('api/logout.php');
+        window.location.href = 'login.html';
+      } catch (error) {
+        console.error('Logout failed:', error);
+        window.location.href = 'login.html';
+      }
+    }
+
+    // Support function
+    function redirectToSupport() {
+      // Fetch support link from settings and redirect
+      fetch('api/settings.php')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.settings.support_link) {
+            window.open(data.settings.support_link, '_blank');
+          } else {
+            // Fallback to default support
+            alert('Support link not configured. Please contact admin.');
+          }
+        })
+        .catch(error => {
+          console.error('Failed to fetch support link:', error);
+          alert('Support link not available. Please contact admin.');
+        });
+    }
+
+    // Initialize authentication on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOMContentLoaded started'); // Debug log
+      
+      // Initialize background music
+      initBackgroundMusic();
+      
+      // Ensure modal is hidden on page load
+      const rulesModal = document.getElementById('rulesModal');
+      if (rulesModal) {
+        rulesModal.style.display = 'none';
+        console.log('Modal hidden on page load'); // Debug log
+      }
+      
+      checkAuthStatus();
+      
+      // Fetch game settings
+      fetch('api/settings.php')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Update bet limits
+            window.gameSettings = data.settings;
+            
+            // Update min/max bet input
+            const betInput = document.querySelector('.minmax-input');
+            if (betInput && window.gameSettings.min_bet) {
+              betInput.min = window.gameSettings.min_bet;
+              betInput.value = window.gameSettings.min_bet;
+            }
+            
+            // Update preset bet buttons if they exist
+            const amountBtns = document.querySelectorAll('.amount-btn');
+            if (amountBtns.length > 0 && window.gameSettings) {
+              console.log('Updating preset buttons with settings:', window.gameSettings); // Debug log
+              // Use preset values from admin settings
+              const presetAmounts = [
+                window.gameSettings.preset_btn_1 || 0.5,
+                window.gameSettings.preset_btn_2 || 1,
+                window.gameSettings.preset_btn_3 || 2,
+                window.gameSettings.preset_btn_4 || 7
+              ];
+              
+              console.log('Preset amounts:', presetAmounts); // Debug log
+              
+              amountBtns.forEach((btn, index) => {
+                if (presetAmounts[index]) {
+                  btn.textContent = presetAmounts[index];
+                  btn.onclick = function() {
+                    setBetAmount(presetAmounts[index]);
+                  };
+                  console.log(`Updated button ${index + 1} to ${presetAmounts[index]}`); // Debug log
+                }
+              });
+            } else {
+              console.log('No amount buttons found or no game settings'); // Debug log
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Failed to fetch game settings:', error);
+        });
+      
+      // Add logout event listener
+      document.getElementById('logoutBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        logout();
+      });
+
+      // Game Rules Modal event listeners
+      const closeRulesBtn = document.getElementById('closeRulesBtn');
+      if (closeRulesBtn) {
+        closeRulesBtn.addEventListener('click', closeRulesModal);
+      }
+
+      const rulesModalElement = document.getElementById('rulesModal');
+      if (rulesModalElement) {
+        rulesModalElement.addEventListener('click', function(e) {
+          if (e.target === this) {
+            closeRulesModal();
+          }
+        });
+      }
+
+      // How to Play Modal event listeners
+      const closeHowBtn = document.getElementById('closeHowBtn');
+      if (closeHowBtn) {
+        closeHowBtn.addEventListener('click', closeHowModal);
+      }
+      const howModalElement = document.getElementById('howModal');
+      if (howModalElement) {
+        howModalElement.addEventListener('click', function(e) {
+          if (e.target === this) {
+            closeHowModal();
+          }
+        });
+      }
+      
+      // Music toggle event listener
+      const musicToggle = document.getElementById('musicToggle');
+      if (musicToggle) {
+        musicToggle.addEventListener('change', function() {
+          if (this.checked) {
+            // Enable music
+            if (bgMusic && !isMusicPlaying) {
+              bgMusic.play().then(() => {
+                isMusicPlaying = true;
+              }).catch(e => console.log('Background music play failed:', e));
+            }
+          } else {
+            // Disable music
+            if (bgMusic && isMusicPlaying) {
+              bgMusic.pause();
+              isMusicPlaying = false;
+            }
+          }
+        });
+      }
+    });
+
+    // Hamburger menu toggle
+    const hamburger = document.getElementById('hamburgerMenu');
+    const popupMenu = document.getElementById('popupMenu');
+    hamburger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      popupMenu.classList.toggle('active');
+      if (popupMenu.classList.contains('active')) {
+        document.body.classList.add('hide-overlays');
+      } else {
+        document.body.classList.remove('hide-overlays');
+      }
+    });
+    // Hide menu when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!popupMenu.contains(e.target) && !hamburger.contains(e.target)) {
+        popupMenu.classList.remove('active');
+        document.body.classList.remove('hide-overlays');
+      }
+    });
+    // Avatar toggle
+    const toggleAvatars = document.getElementById('toggleAvatars');
+    const avatarSelection = document.getElementById('avatarSelection');
+    toggleAvatars.addEventListener('click', function() {
+      avatarSelection.classList.toggle('hidden');
+    });
+    // Avatar selection
+    document.querySelectorAll('.avatar-option').forEach(function(img) {
+      img.addEventListener('click', function() {
+        const avatarPath = this.src; // Get the full path from the image src
+        document.getElementById('selectedAvatar').src = avatarPath;
+        avatarSelection.classList.add('hidden');
+        
+        // Save avatar selection to backend
+        fetch('api/user.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            avatar: avatarPath
+          })
+        }).then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            console.log('Avatar updated successfully');
+          } else {
+            console.error('Failed to update avatar:', data.error);
+          }
+        }).catch(error => {
+          console.error('Failed to update avatar:', error);
+        });
+      });
+    });
+    // Example: Dynamically update balance and let box resize
+    function setBalance(amount) {
+      const balanceDiv = document.getElementById('balance');
+      balanceDiv.textContent = `$${amount}`;
+    }
+    // setBalance(100);
+    // setBalance(10000);
+    // Difficulty custom popup logic
+    const diffDisplay = document.querySelector('.difficulty-select-display');
+    const diffPopup = document.getElementById('difficultyPopup');
+    let selectedDiff = 'Easy';
+    if (diffDisplay && diffPopup) {
+      diffDisplay.addEventListener('click', function(e) {
+        e.stopPropagation();
+        diffPopup.classList.toggle('active');
+      });
+      document.querySelectorAll('.difficulty-option').forEach(opt => {
+        opt.addEventListener('click', function(e) {
+          selectedDiff = this.textContent;
+          diffDisplay.innerHTML = selectedDiff + ' <span style="margin-left:auto;">&#9660;</span>';
+          diffPopup.classList.remove('active');
+          renderRectangles(selectedDiff);
+          moveChickenTo(0);
+        });
+      });
+      document.addEventListener('click', function(e) {
+        if (!diffPopup.contains(e.target) && !diffDisplay.contains(e.target)) {
+          diffPopup.classList.remove('active');
+        }
+      });
+    }
+
+    // --- GAME LOGIC ---
+    let gameState = {
+      started: false,
+      currentPos: 0,
+      overlays: [],
+      totalRects: 0
+    };
+
+    let gameCrashed = false;
+
+    // Rectangle rendering logic
+    function renderRectangles(difficulty) {
+      const scrollInner = document.getElementById('scrollInner');
+      scrollInner.innerHTML = '';
+      let total = 25;
+      let overlayTexts = [];
+      if (difficulty === 'Easy') {
+        overlayTexts = [
+          '1.03', '1.07', '1.12', '1.17', '1.23', '1.29', '1.36', '1.44', '1.53', '1.63', '1.75', '1.88', '2.04', '2.22', '2.45', '2.72', '3.06', '3.50', '4.08', '4.90', '6.13', '6.61', '9.81', '19.44'
+        ].map(t => t + 'x');
+      }
+      if (difficulty === 'Medium') {
+        total = 23;
+        overlayTexts = [
+          '1.12', '1.28', '1.47', '1.70', '1.98', '2.33', '2.76', '3.32', '4.03', '4.96', '6.20', '6.91', '8.90', '11.74', '15.99', '22.61', '33.58', '53.20', '92.17', '182.51', '451.71', '1788.80'
+        ].map(t => t + 'x');
+      }
+      if (difficulty === 'Hard') {
+        total = 21;
+        overlayTexts = [
+          '1.23', '1.55', '1.98', '2.56', '3.36', '4.49', '5.49', '7.53', '10.56', '15.21', '22.59', '34.79', '55.97', '94.99', '172.42', '341.40', '760.46', '2007.63', '6956.47', '41321.43'
+        ].map(t => t + 'x');
+      }
+      if (difficulty === 'Hardcore') {
+        total = 16;
+        overlayTexts = [
+          '1.63', '2.80', '4.95', '9.08', '15.21', '30.12', '62.96', '140.24', '337.19', '890.19', '2643.89', '9161.08', '39301.05', '233448.29', '2542251.93'
+        ].map(t => t + 'x');
+      }
+      // Always show first and last
+      // First rectangle
+      scrollInner.innerHTML += `
+        <div class="scroll-rect home-rect" style="position:relative;">
+          <img src="images/HOME.jpg" class="rect-img">
+          ${gameState && gameState.started ? '' : '<img src="images/chicken.png" class="chicken-overlay" style="position:absolute;left:50%;bottom:30px;transform:translateX(-50%);width:60%;max-width:120px;z-index:11;pointer-events:none;">'}
+          <div id="sideWinNotification" class="side-win-notification">
+            <img id="sideWinAvatar" class="side-win-avatar" src="avatar/1.png" alt="Avatar">
+            <span id="sideWinName" class="side-win-name">Player</span>
+            <span id="sideWinAmount" class="side-win-amount">₹1,000.00</span>
+          </div>
+        </div>
+      `;
+      // Middle rectangles
+      const laneImgs = ["LANE1.jpg", "LANE2.jpg"];
+      for (let i = 1; i < total - 1; i++) {
+        const lane = laneImgs[(i - 1) % laneImgs.length];
+        let overlay = '';
+        if (overlayTexts[i - 1]) {
+          overlay = `<div class='rect-text-overlay'>${overlayTexts[i - 1]}</div>`;
+        }
+        scrollInner.innerHTML += `
+          <div class="scroll-rect"><img src="images/${lane}" class="rect-img"><img src="images/CENTER.png" class="center-img">${overlay}</div>
+        `;
+      }
+      // Last rectangle
+      let lastOverlay = '';
+      if (overlayTexts[overlayTexts.length - 1]) {
+        lastOverlay = `<div class='rect-text-overlay'>${overlayTexts[overlayTexts.length - 1]}</div>`;
+      }
+      scrollInner.innerHTML += `
+        <div class="scroll-rect"><img src="images/FINAL.jpg" class="rect-img">${lastOverlay}</div>
+      `;
+    }
+    // Initial render
+    renderRectangles(selectedDiff);
+
+    // --- BETTING LOGIC ---
+    const presetBets = [0.5, 1, 2, 7]; // Default values, will be updated from API
+    const minBtn = document.querySelector('.minmax-btn');
+    const maxBtn = document.querySelectorAll('.minmax-btn')[1];
+    const betInput = document.querySelector('.minmax-input');
+    const amountBtns = document.querySelectorAll('.amount-btn');
+
+    if (minBtn && betInput) {
+      minBtn.addEventListener('click', () => {
+        const minBet = window.gameSettings?.min_bet || 0.5;
+        betInput.value = minBet;
+      });
+    }
+    if (maxBtn && betInput) {
+      maxBtn.addEventListener('click', () => {
+        const maxBet = window.gameSettings?.max_bet || 10000;
+        betInput.value = maxBet;
+      });
+    }
+    amountBtns.forEach((btn, idx) => {
+      btn.addEventListener('click', () => {
+        // Use admin preset values if available, otherwise use defaults
+        const presetAmounts = window.gameSettings ? [
+          window.gameSettings.preset_btn_1,
+          window.gameSettings.preset_btn_2,
+          window.gameSettings.preset_btn_3,
+          window.gameSettings.preset_btn_4
+        ] : presetBets;
+        
+        betInput.value = presetAmounts[idx] || presetBets[idx];
+      });
+    });
+    betInput.addEventListener('input', () => {
+      let val = parseFloat(betInput.value);
+      const minBet = window.gameSettings?.min_bet || 0.5;
+      const maxBet = window.gameSettings?.max_bet || 10000;
+      
+      if (isNaN(val) || val < minBet) betInput.value = minBet;
+      if (val > maxBet) betInput.value = maxBet;
+    });
+
+    // --- GAME LOGIC ---
+    function getCurrentOverlays() {
+      // Get overlays for current difficulty
+      let overlays = [];
+      if (selectedDiff === 'Easy') overlays = [
+        '1.03x','1.07x','1.12x','1.17x','1.23x','1.29x','1.36x','1.44x','1.53x','1.63x','1.75x','1.88x','2.04x','2.22x','2.45x','2.72x','3.06x','3.50x','4.08x','4.90x','6.13x','6.61x','9.81x','19.44x']
+      if (selectedDiff === 'Medium') overlays = [
+        '1.12x','1.28x','1.47x','1.70x','1.98x','2.33x','2.76x','3.32x','4.03x','4.96x','6.20x','6.91x','8.90x','11.74x','15.99x','22.61x','33.58x','53.20x','92.17x','182.51x','451.71x','1788.80x']
+      if (selectedDiff === 'Hard') overlays = [
+        '1.23x','1.55x','1.98x','2.56x','3.36x','4.49x','5.49x','7.53x','10.56x','15.21x','22.59x','34.79x','55.97x','94.99x','172.42x','341.40x','760.46x','2007.63x','6956.47x','41321.43x']
+      if (selectedDiff === 'Hardcore') overlays = [
+        '1.63x','2.80x','4.95x','9.08x','15.21x','30.12x','62.96x','140.24x','337.19x','890.19x','2643.89x','9161.08x','39301.05x','233448.29x','2542251.93x']
+      return overlays;
+    }
+
+    // Reset all center images to default state
+    function resetCenterImages() {
+      const rects = document.querySelectorAll('.scroll-rect');
+      rects.forEach((rect, i) => {
+        const centerImg = rect.querySelector('.center-img');
+        if (centerImg) {
+          if (i === 0) {
+            centerImg.src = 'images/HOME.jpg'; // First rectangle is HOME
+          } else if (i === rects.length - 1) {
+            centerImg.src = 'images/FINAL.jpg'; // Last rectangle is FINAL
+          } else {
+            centerImg.src = 'images/CENTER.png'; // All middle rectangles back to CENTER
+          }
+          centerImg.classList.remove('turn-effect');
+        }
+        
+        // Re-add multiplier text overlays for middle rectangles
+        if (i > 0 && i < rects.length - 1) {
+          // Remove existing overlay first
+          const existingOverlay = rect.querySelector('.rect-text-overlay');
+          if (existingOverlay) existingOverlay.remove();
+          
+          // Add new overlay with multiplier text using original styling
+          const overlay = document.createElement('div');
+          overlay.className = 'rect-text-overlay';
+          overlay.textContent = gameState.overlays[i - 1] || '';
+          overlay.style.position = 'absolute';
+          overlay.style.top = '50%';
+          overlay.style.left = '50%';
+          overlay.style.transform = 'translate(-50%, -50%)';
+          overlay.style.color = '#fff';
+          overlay.style.fontSize = '1.3rem';
+          overlay.style.fontWeight = 'bold';
+          overlay.style.textShadow = '2px 2px 0 #707CBB';
+          overlay.style.pointerEvents = 'none';
+          overlay.style.zIndex = '10';
+          overlay.style.textAlign = 'center';
+          overlay.style.width = '100%';
+          rect.appendChild(overlay);
+        }
+      });
+    }
+
+
+
+    function moveChickenTo(pos, crashed = false) {
+      console.log(`moveChickenTo called with pos=${pos}, crashed=${crashed}`);
+      // Remove any previous chicken overlays
+      document.querySelectorAll('.chicken-game-overlay').forEach(e => e.remove());
+      // Place chicken overlay on the rectangle at pos (unless crashed)
+      const rects = document.querySelectorAll('.scroll-rect');
+      console.log(`Found ${rects.length} rectangles, checking position ${pos}`);
+      if (rects[pos]) {
+        if (!crashed) {
+          const chicken = document.createElement('img');
+          chicken.src = 'images/chicken.png';
+          chicken.className = 'chicken-game-overlay';
+          chicken.style.position = 'absolute';
+          chicken.style.left = '50%';
+          chicken.style.bottom = '30px';
+          chicken.style.transform = 'translateX(-50%)';
+          chicken.style.width = '60%';
+          chicken.style.maxWidth = '120px';
+          chicken.style.zIndex = 11;
+          chicken.style.pointerEvents = 'none';
+          rects[pos].appendChild(chicken);
+        } else {
+          // Show ROAST.png and fire.mp4 on crash
+          const roast = document.createElement('img');
+          roast.src = 'images/ROAST.png';
+          roast.className = 'chicken-game-overlay';
+          roast.style.position = 'absolute';
+          roast.style.left = '50%';
+          roast.style.bottom = '17px';
+          roast.style.transform = 'translateX(-50%)';
+          roast.style.width = '60%';
+          roast.style.maxWidth = '120px';
+          roast.style.zIndex = 11;
+          roast.style.pointerEvents = 'none';
+          rects[pos].appendChild(roast);
+
+          // Add fire.mp4 video below the roast image
+          const fireVid = document.createElement('video');
+          fireVid.src = 'images/fire.mp4';
+          fireVid.className = 'chicken-game-overlay';
+          fireVid.style.position = 'absolute';
+          fireVid.style.left = '50%';
+          fireVid.style.bottom = '0px';
+          fireVid.style.transform = 'translateX(-50%)';
+          fireVid.style.width = '60%';
+          fireVid.style.maxWidth = '120px';
+          fireVid.style.zIndex = 10;
+          fireVid.style.pointerEvents = 'none';
+          fireVid.autoplay = true;
+          fireVid.loop = true;
+          fireVid.muted = true;
+          fireVid.playsInline = true;
+          rects[pos].appendChild(fireVid);
+        }
+        
+        // Special handling for home rectangle (position 0) - it doesn't have center-img
+        if (pos === 0) {
+          // For home rectangle, just place the chicken and skip center-img logic
+          console.log('Chicken moved to home position (0) - placing chicken overlay');
+          // Ensure chicken is placed on home rectangle
+          const homeRect = rects[0];
+          if (homeRect) {
+            console.log('Home rectangle found, placing chicken');
+            const chicken = document.createElement('img');
+            chicken.src = 'images/chicken.png';
+            chicken.className = 'chicken-game-overlay';
+            chicken.style.position = 'absolute';
+            chicken.style.left = '50%';
+            chicken.style.bottom = '30px';
+            chicken.style.transform = 'translateX(-50%)';
+            chicken.style.width = '60%';
+            chicken.style.maxWidth = '120px';
+            chicken.style.zIndex = 11;
+            chicken.style.pointerEvents = 'none';
+            homeRect.appendChild(chicken);
+            console.log('Chicken placed on home rectangle');
+          } else {
+            console.log('Home rectangle not found!');
+          }
+        } else {
+          // Set all crossed center-imgs to CROSS.png, current to GREEN.png, rest to CENTER.png
+          rects.forEach((rect, i) => {
+            const centerImg = rect.querySelector('.center-img');
+            if (centerImg) {
+              if (i < pos) {
+                centerImg.src = 'images/CROSS.png';
+                // Remove overlay text from crossed rectangles
+                const overlay = rect.querySelector('.rect-text-overlay');
+                if (overlay) overlay.remove();
+              } else if (i === pos) {
+                if (crashed) {
+                  console.log('Setting CRASH.png for rectangle at position:', pos);
+                  // Create a new image element to ensure proper loading
+                  const crashImg = new Image();
+                  crashImg.onload = function() {
+                    centerImg.src = this.src;
+                    centerImg.style.display = 'block';
+                    centerImg.style.opacity = '1';
+                    centerImg.style.visibility = 'visible';
+                  };
+                  crashImg.src = 'images/CRASH.png';
+                  // Remove overlay text from crashed rectangle
+                  const overlay = rect.querySelector('.rect-text-overlay');
+                  if (overlay) overlay.remove();
+                } else {
+                  centerImg.src = 'images/GREEN.png';
+                  // Change only the back shadow layer color to green when GREEN image appears
+                  const overlay = rect.querySelector('.rect-text-overlay');
+                  if (overlay) {
+                    overlay.style.color = '#fff';
+                    overlay.style.textShadow = '2px 2px 0 #60F363';
+                  }
+                }
+              } else {
+                centerImg.src = 'images/CENTER.png';
+              }
+              centerImg.classList.remove('turn-effect');
+            }
+          });
+          
+          // Animate the current rectangle (both for normal moves and crashes)
+          const centerImg = rects[pos].querySelector('.center-img');
+          if (centerImg) {
+            if (crashed) {
+              console.log('Applying crash turn effect to center image');
+              // For crashes, wait for the CRASH.png image to load before applying turn effect
+              centerImg.onload = function() {
+                console.log('CRASH.png loaded, applying turn effect');
+                setTimeout(() => {
+                  centerImg.classList.add('turn-effect');
+                  setTimeout(() => centerImg.classList.remove('turn-effect'), 600);
+                }, 50);
+              };
+              // If image is already loaded, apply effect immediately
+              if (centerImg.complete) {
+                console.log('CRASH.png already loaded, applying turn effect immediately');
+                setTimeout(() => {
+                  centerImg.classList.add('turn-effect');
+                  setTimeout(() => centerImg.classList.remove('turn-effect'), 600);
+                }, 50);
+              }
+            } else {
+              // For normal moves, use shorter delay
+              setTimeout(() => {
+                centerImg.classList.add('turn-effect');
+                setTimeout(() => centerImg.classList.remove('turn-effect'), 600);
+              }, 50);
+            }
+          } else {
+            console.log('Center image not found for rectangle at position:', pos);
+          }
+        }
+        
+        // Auto-scroll the scrollable row to keep the active rectangle in view
+        const scrollRow = document.querySelector('.scroll-row');
+        if (scrollRow && rects[pos]) {
+          const rect = rects[pos].getBoundingClientRect();
+          const scrollRect = scrollRow.getBoundingClientRect();
+          const scrollLeft = scrollRow.scrollLeft;
+          // Center the rectangle in the scroll view
+          const offset = rect.left - scrollRect.left - (scrollRect.width/2) + (rect.width/2);
+          scrollRow.scrollTo({ left: scrollLeft + offset, behavior: 'smooth' });
+        }
+      }
+    }
+
+    function controlledCrash(pos) {
+      // Check if controlled crash is enabled
+      if (window.gameSettings?.controlled_crash_enabled) {
+        const crashRectangle = window.gameSettings.controlled_crash_rectangle || 1;
+        return pos === crashRectangle;
+      }
+      
+      // Fallback to random crash if controlled crash is disabled
+      const rects = document.querySelectorAll('.scroll-rect');
+      if (pos <= 0 || pos >= rects.length - 1) return false;
+      // 20% crash chance (adjust as needed)
+      return Math.random() < 0.2;
+    }
+
+    function goForward() {
+      if (!gameState.started || gameCrashed) return;
+      
+      // Play button click sound
+      playSound('https://chicken-road.inout.games/static/media/buttonClick.ee7c77f0.webm');
+      
+      if (gameState.currentPos < gameState.totalRects - 2) {
+        gameState.currentPos++;
+        if (controlledCrash(gameState.currentPos)) {
+          gameCrashed = true;
+          moveChickenTo(gameState.currentPos, true);
+          
+          // Play crash sound
+          playSound('https://chicken-road.inout.games/static/media/lose.ea35d305.webm');
+          
+          // Save crash result - no balance change needed since bet was already deducted
+          saveBet(gameState.betAmount, selectedDiff, '0x', 'crash', 0);
+          
+          // Disable buttons if they exist
+          const goBtn = document.querySelector('.go-btn');
+          const cashoutBtn = document.querySelector('.cashout-btn');
+          if (goBtn) goBtn.disabled = true;
+          if (cashoutBtn) cashoutBtn.disabled = true;
+          
+          setTimeout(() => {
+            console.log('Crash timeout triggered - moving chicken to home');
+            document.querySelectorAll('.chicken-game-overlay').forEach(e => e.remove());
+            resetCenterImages(); // Reset all center images to default state
+            
+            // Force move chicken to home position with a slight delay to ensure DOM is ready
+            setTimeout(() => {
+              console.log('Calling moveChickenTo(0) to move chicken to home');
+              moveChickenTo(0);
+              
+              // Auto-scroll to HOME
+              const scrollRow = document.querySelector('.scroll-row');
+              const rects = document.querySelectorAll('.scroll-rect');
+              if (scrollRow && rects[0]) {
+                const rect = rects[0].getBoundingClientRect();
+                const scrollRect = scrollRow.getBoundingClientRect();
+                const scrollLeft = scrollRow.scrollLeft;
+                const offset = rect.left - scrollRect.left - (scrollRect.width/2) + (rect.width/2);
+                scrollRow.scrollTo({ left: scrollLeft + offset, behavior: 'smooth' });
+              }
+            }, 100);
+            
+            // Restore Play button
+            const btnRow = document.querySelector('.play-row-gocash');
+            if (btnRow) {
+              const playBtn = document.createElement('button');
+              playBtn.className = 'play-btn';
+              playBtn.textContent = 'Play';
+              btnRow.parentNode.replaceChild(playBtn, btnRow);
+              playBtn.addEventListener('click', startGame);
+            }
+            setDifficultySelectVisible(true); // Show difficulty select after crash
+            setGoCashBtnWide(false); // Restore button width
+          }, 2000);
+          return;
+        }
+        moveChickenTo(gameState.currentPos);
+      }
+    }
+
+    function cashout() {
+      if (!gameState.started) return;
+      let multiplier = gameState.overlays[gameState.currentPos - 1] || '';
+      const multiplierValue = parseFloat(multiplier.replace('x', ''));
+      const winnings = gameState.betAmount * multiplierValue;
+      
+      // Play cashout sound
+      playSound('http://chicken-road.inout.games/static/media/Win_1.3e26eda0.webm');
+      
+      // Add only the winnings to balance (bet amount was already deducted on play)
+      const currentBalance = parseFloat(document.getElementById('balance').textContent.replace('₹', ''));
+      const newBalance = currentBalance + winnings;
+      updateBalanceDisplay(newBalance); // Update display immediately
+      
+      // Sync with backend
+      updateBalance(newBalance);
+      
+      // Save successful cashout - pass winnings as profit
+      saveBet(gameState.betAmount, selectedDiff, multiplier, 'cashout', winnings);
+      
+      // Show cashout popup
+      showCashoutPopup(multiplier, winnings);
+      
+      // Reset game after popup
+      setTimeout(() => {
+        document.querySelectorAll('.chicken-game-overlay').forEach(e => e.remove());
+        resetCenterImages(); // Reset all center images to default state
+        // Move chicken back to home position
+        moveChickenTo(0);
+        // Auto-scroll to HOME
+        const scrollRow = document.querySelector('.scroll-row');
+        const rects = document.querySelectorAll('.scroll-rect');
+        if (scrollRow && rects[0]) {
+          const rect = rects[0].getBoundingClientRect();
+          const scrollRect = scrollRow.getBoundingClientRect();
+          const scrollLeft = scrollRow.scrollLeft;
+          const offset = rect.left - scrollRect.left - (scrollRect.width/2) + (rect.width/2);
+          scrollRow.scrollTo({ left: scrollLeft + offset, behavior: 'smooth' });
+        }
+        // Restore Play button
+        const btnRow = document.querySelector('.play-row-gocash');
+        if (btnRow) {
+          const playBtn = document.createElement('button');
+          playBtn.className = 'play-btn';
+          playBtn.textContent = 'Play';
+          btnRow.parentNode.replaceChild(playBtn, btnRow);
+          playBtn.addEventListener('click', startGame);
+        }
+        setDifficultySelectVisible(true); // Show difficulty select after cashout
+        setGoCashBtnWide(false); // Restore button width
+      }, 2000);
+    }
+
+    // Attach Play button logic
+    document.querySelector('.play-btn').addEventListener('click', startGame);
+
+    // In startGame, also check for crash on first move
+    function startGame() {
+      const betAmount = parseFloat(document.querySelector('.minmax-input').value);
+      const currentBalance = parseFloat(document.getElementById('balance').textContent.replace('₹', ''));
+      
+      // Play button click sound
+      playSound('https://chicken-road.inout.games/static/media/buttonClick.ee7c77f0.webm');
+      
+      // Check if user has enough balance
+      if (betAmount > currentBalance) {
+        alert('Insufficient balance!');
+        return;
+      }
+      
+      // Check bet limits from admin settings
+      const minBet = window.gameSettings?.min_bet || 0.5;
+      const maxBet = window.gameSettings?.max_bet || 10000;
+      
+      if (betAmount < minBet) {
+        alert(`Minimum bet amount is ₹${minBet}`);
+        return;
+      }
+      
+      if (betAmount > maxBet) {
+        alert(`Maximum bet amount is ₹${maxBet}`);
+        return;
+      }
+      
+      // Deduct bet amount from balance instantly
+      const newBalance = currentBalance - betAmount;
+      updateBalanceDisplay(newBalance); // Update display immediately
+      
+      // Sync with backend
+      updateBalance(newBalance);
+      
+      gameState.started = true;
+      gameState.overlays = getCurrentOverlays();
+      gameState.totalRects = document.querySelectorAll('.scroll-rect').length;
+      gameState.betAmount = betAmount;
+      renderRectangles(selectedDiff);
+      moveChickenTo(0);
+      gameState.totalRects = document.querySelectorAll('.scroll-rect').length;
+      gameState.currentPos = 1;
+      gameCrashed = false;
+      setDifficultySelectVisible(false); // Hide difficulty select
+      if (controlledCrash(gameState.currentPos)) {
+        gameCrashed = true;
+        moveChickenTo(gameState.currentPos, true);
+        
+        // Play crash sound
+        playSound('https://chicken-road.inout.games/static/media/lose.ea35d305.webm');
+        
+        // Save crash result - no balance change needed since bet was already deducted
+        saveBet(gameState.betAmount, selectedDiff, '0x', 'crash', 0);
+        
+        setTimeout(() => {
+          console.log('StartGame crash timeout triggered - moving chicken to home');
+          document.querySelectorAll('.chicken-game-overlay').forEach(e => e.remove());
+          resetCenterImages(); // Reset all center images to default state
+          
+          // Force move chicken to home position with a slight delay to ensure DOM is ready
+          setTimeout(() => {
+            console.log('Calling moveChickenTo(0) from startGame to move chicken to home');
+            moveChickenTo(0);
+            
+            // Auto-scroll to HOME
+            const scrollRow = document.querySelector('.scroll-row');
+            const rects = document.querySelectorAll('.scroll-rect');
+            if (scrollRow && rects[0]) {
+              const rect = rects[0].getBoundingClientRect();
+              const scrollRect = scrollRow.getBoundingClientRect();
+              const scrollLeft = scrollRow.scrollLeft;
+              const offset = rect.left - scrollRect.left - (scrollRect.width/2) + (rect.width/2);
+              scrollRow.scrollTo({ left: scrollLeft + offset, behavior: 'smooth' });
+            }
+          }, 100);
+          
+          // Restore Play button
+          const btnRow = document.querySelector('.play-row-gocash');
+          if (btnRow) {
+            const playBtn = document.createElement('button');
+            playBtn.className = 'play-btn';
+            playBtn.textContent = 'Play';
+            btnRow.parentNode.replaceChild(playBtn, btnRow);
+            playBtn.addEventListener('click', startGame);
+          }
+          setDifficultySelectVisible(true); // Show difficulty select after crash
+          setGoCashBtnWide(false); // Restore button width
+        }, 2000);
+      } else {
+        moveChickenTo(gameState.currentPos);
+        // Swap Play button for GO and CASHOUT
+        const playBtn = document.querySelector('.play-btn');
+        if (playBtn) {
+          const btnRow = document.createElement('div');
+          btnRow.className = 'play-row play-row-gocash';
+          btnRow.innerHTML = `
+            <button class="cashout-btn">CASHOUT</button>
+            <button class="go-btn">GO</button>
+          `;
+          playBtn.parentNode.replaceChild(btnRow, playBtn);
+          document.querySelector('.go-btn').addEventListener('click', goForward);
+          document.querySelector('.cashout-btn').addEventListener('click', cashout);
+          setGoCashBtnWide(true); // Make buttons wide
+        }
+      }
+    }
+
+    // Add a helper to show/hide difficulty select
+    function setDifficultySelectVisible(visible) {
+      const diffWrapper = document.querySelector('.difficulty-select-wrapper');
+      if (diffWrapper) {
+        diffWrapper.style.display = visible ? '' : 'none';
+      }
+    }
+    // Add helper for wide buttons
+    function setGoCashBtnWide(wide) {
+      document.querySelectorAll('.go-btn, .cashout-btn').forEach(btn => {
+        if (wide) {
+          btn.style.width = '80%';
+          btn.style.marginLeft = '0';
+          btn.style.marginRight = '0';
+          btn.style.height = '90px';
+        } else {
+          btn.style.width = '';
+          btn.style.marginLeft = '';
+          btn.style.marginRight = '';
+          btn.style.height = '';
+        }
+      });
+    }
+
+    // Game Rules Modal Function
+    function showGameRules() {
+      console.log('showGameRules called'); // Debug log
+      const minBet = window.gameSettings?.min_bet || '10';
+      const maxBet = window.gameSettings?.max_bet || '10,000';
+      
+      // Update the modal content with dynamic values
+      const minBetAmount = document.getElementById('minBetAmount');
+      const maxBetAmount = document.getElementById('maxBetAmount');
+      
+      if (minBetAmount) {
+        minBetAmount.textContent = `₹${minBet}`;
+      }
+      if (maxBetAmount) {
+        maxBetAmount.textContent = `₹${maxBet}`;
+      }
+      
+      // Show the modal
+      const rulesModal = document.getElementById('rulesModal');
+      rulesModal.style.display = 'flex';
+      console.log('Modal should be visible now'); // Debug log
+      document.getElementById('mainContent').classList.add('blurred');
+      document.body.classList.add('hide-overlays');
+    }
+
+    // Close Game Rules Modal
+    function closeRulesModal() {
+      const rulesModal = document.getElementById('rulesModal');
+      rulesModal.style.display = 'none';
+      document.getElementById('mainContent').classList.remove('blurred');
+      document.body.classList.remove('hide-overlays');
+    }
+
+    // How to Play Modal Function
+    function showHowToPlay() {
+      const howModal = document.getElementById('howModal');
+      howModal.style.display = 'flex';
+      document.getElementById('mainContent').classList.add('blurred');
+      document.body.classList.add('hide-overlays');
+    }
+
+    function closeHowModal() {
+      const howModal = document.getElementById('howModal');
+      howModal.style.display = 'none';
+      document.getElementById('mainContent').classList.remove('blurred');
+      document.body.classList.remove('hide-overlays');
+    }
+
+    // Set bet amount from preset buttons
+    function setBetAmount(amount) {
+      document.querySelector('.minmax-input').value = amount;
+    }
+
+    // Cashout Popup Functions
+    function showCashoutPopup(multiplier, winnings) {
+      const cashoutModal = document.getElementById('cashoutModal');
+      const multiplierText = document.getElementById('cashoutMultiplier');
+      const winningsText = document.getElementById('cashoutWinnings');
+      
+      multiplierText.textContent = multiplier;
+      winningsText.textContent = '₹' + winnings.toFixed(2);
+      
+      cashoutModal.style.display = 'flex';
+      
+      // Auto-hide after 4 seconds
+      setTimeout(() => {
+        hideCashoutPopup();
+      }, 4000);
+    }
+
+    function hideCashoutPopup() {
+      const cashoutModal = document.getElementById('cashoutModal');
+      cashoutModal.style.display = 'none';
+    }
+
+    // Background Music System
+    let bgMusic = null;
+    let isMusicPlaying = false;
+    let isSoundEnabled = true;
+    let isMusicEnabled = true;
+
+    // Initialize background music
+    function initBackgroundMusic() {
+      bgMusic = new Audio('https://chicken-road.inout.games/static/media/Soundtrack.cfaea21c.webm');
+      bgMusic.loop = true;
+      bgMusic.volume = 0.3; // Set default volume to 30%
+      
+      // Auto-play when user interacts with the page (only if music is enabled)
+      document.addEventListener('click', function() {
+        if (!isMusicPlaying && bgMusic && isMusicEnabled) {
+          bgMusic.play().then(() => {
+            isMusicPlaying = true;
+            updateMusicToggle();
+          }).catch(e => console.log('Background music play failed:', e));
+        }
+      }, { once: true });
+    }
+
+    // Play sound effect if sound is enabled
+    function playSound(soundUrl) {
+      if (!isSoundEnabled) return;
+      
+      const sound = new Audio(soundUrl);
+      sound.volume = 0.5; // Set sound effects volume to 50%
+      sound.play().catch(e => console.log('Sound play failed:', e));
+    }
+
+    // Toggle background music
+    function toggleBackgroundMusic() {
+      if (!bgMusic) return;
+      
+      isMusicEnabled = !isMusicEnabled;
+      
+      if (isMusicEnabled) {
+        if (!isMusicPlaying) {
+          bgMusic.play().then(() => {
+            isMusicPlaying = true;
+          }).catch(e => console.log('Background music play failed:', e));
+        }
+      } else {
+        bgMusic.pause();
+        isMusicPlaying = false;
+      }
+      
+      updateMusicToggle();
+      
+      // Save preference to localStorage
+      localStorage.setItem('musicEnabled', isMusicEnabled);
+    }
+
+    // Update music toggle appearance
+    function updateMusicToggle() {
+      const musicToggle = document.getElementById('musicToggle');
+      if (musicToggle) {
+        musicToggle.checked = isMusicEnabled;
+      }
+    }
+
+    // Update sound toggle appearance
+    function updateSoundToggle() {
+      const soundToggle = document.getElementById('soundToggle');
+      if (soundToggle) {
+        soundToggle.checked = isSoundEnabled;
+      }
+    }
+
+    // Toggle sound effects
+    function toggleSound() {
+      isSoundEnabled = !isSoundEnabled;
+      updateSoundToggle();
+      
+      // Save preference to localStorage
+      localStorage.setItem('soundEnabled', isSoundEnabled);
+    }
+
+    // Initialize toggles and event listeners
+    function initializeToggles() {
+      // Load saved preferences
+      const savedSoundEnabled = localStorage.getItem('soundEnabled');
+      if (savedSoundEnabled !== null) {
+        isSoundEnabled = savedSoundEnabled === 'true';
+      }
+      
+      const savedMusicEnabled = localStorage.getItem('musicEnabled');
+      if (savedMusicEnabled !== null) {
+        isMusicEnabled = savedMusicEnabled === 'true';
+      }
+      
+      // Update toggle appearances
+      updateSoundToggle();
+      updateMusicToggle();
+      
+      // Add event listeners
+      const soundToggle = document.getElementById('soundToggle');
+      if (soundToggle) {
+        soundToggle.addEventListener('change', toggleSound);
+      }
+      
+      const musicToggle = document.getElementById('musicToggle');
+      if (musicToggle) {
+        musicToggle.addEventListener('change', toggleBackgroundMusic);
+      }
+      
+      // Start music if enabled
+      if (isMusicEnabled && bgMusic) {
+        document.addEventListener('click', function() {
+          if (!isMusicPlaying) {
+            bgMusic.play().then(() => {
+              isMusicPlaying = true;
+              updateMusicToggle();
+            }).catch(e => console.log('Background music play failed:', e));
+          }
+        }, { once: true });
+      }
+    }
+
+    // Preload critical images to avoid 206 Partial Content issues
+    function preloadImages() {
+      const criticalImages = [
+        'images/CRASH.png',
+        'images/GREEN.png',
+        'images/CROSS.png',
+        'images/CENTER.png',
+        'images/ROAST.png'
+      ];
+      
+      criticalImages.forEach(src => {
+        const img = new Image();
+        img.src = src;
+      });
+    }
+
+    // Global flag to prevent auto-refresh during auth checks
+    window.isCheckingAuth = false;
+    
+    // Initialize everything when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      preloadImages(); // Preload critical images
+      loadSiteBranding(); // Load logo and text settings
+      
+      // Set auth checking flag
+      window.isCheckingAuth = true;
+      
+      // Check auth first, then initialize other features
+      checkAuthStatus().then(() => {
+        // Only initialize auto-refresh if user is authenticated
+        initializeTabRefresh();
+        initBackgroundMusic();
+        initializeToggles();
+      }).catch(() => {
+        // If auth fails, don't initialize auto-refresh
+        console.log('Auth failed, skipping auto-refresh initialization');
+      });
+    });
+
+    // Tab visibility detection and auto-refresh functionality
+    function initializeTabRefresh() {
+      let hiddenTime = null;
+      const REFRESH_THRESHOLD = 10000; // 10 seconds - increased to avoid interference with auth
+      let isAuthenticated = false;
+      let isCheckingAuth = false;
+      
+      // Check authentication status first
+      async function checkAuthBeforeRefresh() {
+        if (isCheckingAuth || window.isCheckingAuth) return false; // Don't check if already checking
+        
+        isCheckingAuth = true;
+        try {
+          const response = await fetch('auth_check.php');
+          const data = await response.json();
+          isAuthenticated = data.success && data.user;
+          console.log('Auth check before refresh:', isAuthenticated ? 'Authenticated' : 'Not authenticated');
+        } catch (error) {
+          console.log('Auth check failed before refresh:', error);
+          isAuthenticated = false;
+        }
+        isCheckingAuth = false;
+        return isAuthenticated;
+      }
+      
+      // Function to handle page visibility change
+      function handleVisibilityChange() {
+        if (document.hidden) {
+          // Page became hidden (user switched tabs or minimized)
+          hiddenTime = Date.now();
+          console.log('Page hidden at:', new Date().toLocaleTimeString());
+        } else {
+          // Page became visible (user returned to tab)
+          if (hiddenTime !== null) {
+            const timeAway = Date.now() - hiddenTime;
+            console.log('Page visible again. Time away:', Math.round(timeAway / 1000), 'seconds');
+            
+            // If user was away for more than the threshold, check auth and refresh if needed
+            if (timeAway > REFRESH_THRESHOLD) {
+              console.log('User was away for more than', REFRESH_THRESHOLD / 1000, 'seconds. Checking auth before refresh...');
+              
+              checkAuthBeforeRefresh().then(authenticated => {
+                if (authenticated) {
+                  console.log('User is authenticated, refreshing page...');
+                  window.location.reload();
+                } else {
+                  console.log('User not authenticated, redirecting to login...');
+                  window.location.href = 'login.html';
+                }
+              });
+            }
+          }
+          hiddenTime = null;
+        }
+      }
+      
+      // Add event listeners for page visibility
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      
+      // Also handle window focus/blur for additional detection
+      window.addEventListener('blur', function() {
+        hiddenTime = Date.now();
+        console.log('Window blurred at:', new Date().toLocaleTimeString());
+      });
+      
+      window.addEventListener('focus', function() {
+        if (hiddenTime !== null) {
+          const timeAway = Date.now() - hiddenTime;
+          console.log('Window focused again. Time away:', Math.round(timeAway / 1000), 'seconds');
+          
+          // If user was away for more than the threshold, check auth and refresh if needed
+          if (timeAway > REFRESH_THRESHOLD) {
+            console.log('User was away for more than', REFRESH_THRESHOLD / 1000, 'seconds. Checking auth before refresh...');
+            
+            checkAuthBeforeRefresh().then(authenticated => {
+              if (authenticated) {
+                console.log('User is authenticated, refreshing page...');
+                window.location.reload();
+              } else {
+                console.log('User not authenticated, redirecting to login...');
+                window.location.href = 'login.html';
+              }
+            });
+          }
+        }
+        hiddenTime = null;
+      });
+      
+      console.log('Tab refresh functionality initialized. Page will refresh if user is away for more than', REFRESH_THRESHOLD / 1000, 'seconds and is authenticated.');
+    }
+
+    // Load site branding (logo and text) from admin settings
+    async function loadSiteBranding() {
+      try {
+        console.log('Loading site branding...');
+        const response = await fetch('api/settings.php?v=' + Date.now());
+        const data = await response.json();
+        
+        console.log('Settings API response:', data);
+        
+        if (data.success) {
+          console.log('Site title:', data.settings.site_title);
+          console.log('Logo path:', data.settings.logo);
+          
+          // Update logo and text
+          const headerText = document.querySelector('.header-left');
+          if (headerText) {
+            // Add cache-busting query param to logo
+            const logoUrl = data.settings.logo ? `${data.settings.logo}?v=${Date.now()}` : '';
+            headerText.innerHTML = `
+              <img src="${logoUrl}" alt="Site Logo" style="width: 32px; height: 32px; margin-right: 4px; vertical-align: middle;">
+              ${data.settings.site_title}
+            `;
+          }
+          
+          // Store game settings globally
+          window.gameSettings = data.settings;
+          
+          // Update preset buttons
+          updatePresetButtons();
+          
+          // Update bet input limits
+          updateBetLimits();
+          
+          // Update powered by logo in popup menu
+          const poweredByLogo = document.getElementById('poweredByLogo');
+          if (poweredByLogo && data.settings.powered_by_logo) {
+            // Add cache-busting query param to powered by logo
+            poweredByLogo.src = `${data.settings.powered_by_logo}?v=${Date.now()}`;
+            poweredByLogo.style.display = 'block';
+          }
+        } else {
+          console.log('Settings API failed:', data.error);
+        }
+      } catch (error) {
+        console.log('Failed to load site branding:', error);
+      }
+    }
+
+    // Update preset buttons with admin settings
+    function updatePresetButtons() {
+      if (!window.gameSettings) return;
+      
+      const amountBtns = document.querySelectorAll('.amount-btn');
+      const presetValues = [
+        window.gameSettings.preset_btn_1,
+        window.gameSettings.preset_btn_2,
+        window.gameSettings.preset_btn_3,
+        window.gameSettings.preset_btn_4
+      ];
+      
+      amountBtns.forEach((btn, index) => {
+        if (presetValues[index] !== undefined) {
+          btn.textContent = presetValues[index];
+        }
+      });
+    }
+
+    // Update bet input limits
+    function updateBetLimits() {
+      if (!window.gameSettings) return;
+      
+      const betInput = document.querySelector('.minmax-input');
+      if (betInput) {
+        betInput.min = window.gameSettings.min_bet;
+        betInput.max = window.gameSettings.max_bet;
+        // Set default value to min bet
+        if (!betInput.value || parseFloat(betInput.value) < window.gameSettings.min_bet) {
+          betInput.value = window.gameSettings.min_bet;
+        }
+      }
+    }
+
+    function updateOnlineCount() {
+      const el = document.getElementById('onlineCount');
+      if (!el) return;
+      // Generate a random number around 18300 (e.g., 18250–18550)
+      const base = 18300;
+      const fluctuation = Math.floor(Math.random() * 250) - 125; // -125 to +124
+      el.textContent = base + fluctuation;
+    }
+    setInterval(updateOnlineCount, 1000);
+    // Also update immediately on load
+    document.addEventListener('DOMContentLoaded', updateOnlineCount);
+
+    // Side win notification logic
+    const sideWinNames = [
+      'Aarav', 'Vivaan', 'Aditya', 'Vihaan', 'Arjun', 'Sai', 'Reyansh', 'Ayaan', 'Krishna', 'Ishaan',
+      'Dhruv', 'Shaurya', 'Kabir', 'Ritvik', 'Atharv', 'Aryan', 'Anaya', 'Diya', 'Myra', 'Aadhya',
+      'Pari', 'Anika', 'Navya', 'Saanvi', 'Kiara', 'Aarohi', 'Ira', 'Meera', 'Amaira', 'Riya'
+    ];
+    const sideWinAvatars = [1,2,3,4,5,6,7,8,9].map(n => `avatar/${n}.png`);
+    function getRandomName() {
+      return sideWinNames[Math.floor(Math.random() * sideWinNames.length)];
+    }
+    function getRandomAvatar() {
+      return sideWinAvatars[Math.floor(Math.random() * sideWinAvatars.length)];
+    }
+    function getRandomAmount() {
+      // Win between 1,000 and 25,000, rounded to nearest 10
+      const amt = Math.floor(Math.random() * 24000) + 1000;
+      return '+₹' + amt.toLocaleString();
+    }
+    function showSideWinNotification() {
+      const notif = document.getElementById('sideWinNotification');
+      const avatar = document.getElementById('sideWinAvatar');
+      const name = document.getElementById('sideWinName');
+      const amount = document.getElementById('sideWinAmount');
+      avatar.src = getRandomAvatar();
+      name.textContent = getRandomName();
+      amount.textContent = getRandomAmount();
+      notif.classList.add('active');
+      // Hide after 3 seconds
+      setTimeout(() => {
+        notif.classList.remove('active');
+      }, 3000);
+    }
+    setInterval(showSideWinNotification, 5000);
+    // Show first notification after 1s
+    setTimeout(showSideWinNotification, 1000);
+
+    let wasInMaintenance = false;
+    async function checkMaintenanceMode() {
+      try {
+        const res = await fetch('api/settings.php?v=' + Date.now());
+        const data = await res.json();
+        const overlay = document.getElementById('maintenanceOverlay');
+        if (data.success && data.settings && data.settings.maintenance_mode === true) {
+          // Check if user is admin
+          let isAdmin = false;
+          try {
+            const authRes = await fetch('auth_check.php');
+            const authData = await authRes.json();
+            isAdmin = authData.success && authData.user && authData.user.is_admin;
+          } catch (e) {}
+          if (!isAdmin) {
+            overlay.style.display = 'flex';
+            Array.from(document.body.children).forEach(child => {
+              if (child !== overlay) child.style.display = 'none';
+            });
+            wasInMaintenance = true;
+            return true;
+          } else {
+            overlay.style.display = 'none';
+            Array.from(document.body.children).forEach(child => {
+              if (child !== overlay) child.style.display = '';
+            });
+            wasInMaintenance = false;
+          }
+        } else {
+          // If overlay is visible, hide it and show all content
+          if (overlay && overlay.style.display === 'flex') {
+            overlay.style.display = 'none';
+            Array.from(document.body.children).forEach(child => {
+              if (child !== overlay) child.style.display = '';
+            });
+            if (wasInMaintenance) {
+              wasInMaintenance = false;
+              window.location.reload();
+            }
+            return false;
+          }
+          wasInMaintenance = false;
+        }
+      } catch (e) {}
+      return false;
+    }
+    document.addEventListener('DOMContentLoaded', async function() {
+      // ... existing code ...
+      // Initial maintenance mode check
+      await checkMaintenanceMode();
+      // Poll every 5 seconds for maintenance mode changes
+      setInterval(checkMaintenanceMode, 5000);
+      // ... existing code ...
+    });
+  </script>
+</body>
+</html> 
